@@ -122,7 +122,7 @@
                 maxAttempts = correctWord.length; // Set max attempts to the length of the word
                 createBoard(correctWord.length); // Create the board based on word length
                 document.getElementById('guessInput').setAttribute('maxlength', correctWord.length);
-                document.getElementById('guessInput').setAttribute('placeholder', Enter a ${correctWord.length}-letter word);
+                document.getElementById('guessInput').setAttribute('placeholder', `Enter a ${correctWord.length}-letter word`);
                 currentRow = 0; // Reset current row for new game
                 document.getElementById('message').innerText = ''; // Clear any messages
                 document.getElementById('guessInput').value = ''; // Clear the input field
@@ -137,11 +137,11 @@
         function createBoard(wordLength) {
             const board = document.getElementById('board');
             board.innerHTML = ''; // Clear previous board if any
-            board.style.gridTemplateColumns = repeat(${wordLength}, 50px); // Set grid columns based on word length
+            board.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`; // Set grid columns based on word length
             for (let i = 0; i < maxAttempts * wordLength; i++) {
                 const tile = document.createElement('div');
                 tile.classList.add('tile');
-                tile.setAttribute('id', tile-${i});
+                tile.setAttribute('id', `tile-${i}`);
                 board.appendChild(tile);
             }
             board.style.opacity = '1'; // Fade-in animation for board
@@ -152,7 +152,7 @@
             const currentGuess = guessInput.value.toLowerCase();
             
             if (currentGuess.length !== correctWord.length) {
-                document.getElementById('message').innerText = Please enter a ${correctWord.length}-letter word.;
+                document.getElementById('message').innerText = `Please enter a ${correctWord.length}-letter word.`;
                 return;
             }
             if (currentRow >= maxAttempts) {
@@ -162,7 +162,7 @@
 
             const startIndex = currentRow * correctWord.length;
             for (let i = 0; i < correctWord.length; i++) {
-                const tile = document.getElementById(tile-${startIndex + i});
+                const tile = document.getElementById(`tile-${startIndex + i}`);
                 tile.innerText = currentGuess[i];
 
                 if (currentGuess[i] === correctWord[i]) {
@@ -188,7 +188,7 @@
             guessInput.value = '';
 
             if (currentRow >= maxAttempts) {
-                document.getElementById('message').innerText = Game over! The word was "${correctWord}".;
+                document.getElementById('message').innerText = `Game over! The word was "${correctWord}".`;
                 endGame();
             }
         }
