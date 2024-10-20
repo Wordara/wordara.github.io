@@ -3,88 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wordle-Inspired Game</title>
+    <title>Wordaura</title>
+    <link rel="icon" href="logo.png" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #121212;
+            background: linear-gradient(135deg, #003333, #483d8b, #006400);
+            background-size: 400% 400%;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            animation: gradientAnimation 10s ease infinite;
         }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .game-container {
             text-align: center;
         }
+
+        .logo {
+            margin-bottom: 10px;
+            width: 100px;
+        }
+
+        .wordaura-title {
+            font-size: 2.5rem;
+            margin-top: 0;
+            color: white;
+        }
+
         .board {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-            grid-gap: 5px;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            grid-gap: 4px;
             margin-bottom: 20px;
             justify-content: center;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
         }
+
         .tile {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border: 2px solid #E65724;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 20px;
             text-transform: uppercase;
-            background-color: #333;
-            transition: background-color 0.3s, transform 0.2s;
+            background-color: rgba(51, 51, 51, 0.7);
+            transition: background-color 0.3s, transform 0.6s ease-in-out;
         }
+
+        .tile.flip {
+            transform: rotateY(180deg);
+        }
+
         .tile.correct {
             background-color: #4caf50;
         }
+
         .tile.present {
             background-color: #ffc107;
         }
+
         .tile.wrong {
             background-color: #f44336;
         }
+
         input[type="text"], input[type="number"] {
-            padding: 10px;
-            font-size: 16px;
+            padding: 8px;
+            font-size: 14px;
             margin-bottom: 20px;
-            width: 250px;
+            width: 200px;
             text-transform: uppercase;
+            color: black;
         }
+
         button {
             background-color: #E65724;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             cursor: pointer;
             margin-top: 10px;
         }
+
         button:hover {
             background-color: #ff7636;
         }
+
         .hidden {
             display: none;
         }
+
         .bottom-options {
             margin-top: 20px;
+        }
+
+        h3 {
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Wordle-Inspired Game</h1>
+        <img src="logo.png" alt="Wordaura Logo" class="logo" id="gameLogo"/>
+        <h1 class="wordaura-title">Wordaura</h1>
+
         <div id="board" class="board"></div>
-        
+
         <input type="text" id="guessInput" placeholder="Enter your guess" class="hidden" />
         <br />
         <button id="submitGuessButton" onclick="makeGuess()" class="hidden">Submit Guess</button>
-        
+
         <div class="bottom-options">
-            <input type="number" id="wordLengthInput" placeholder="Enter word length" min="1" max="10" />
+            <input type="number" id="wordLengthInput" placeholder="Enter word length" min="5" max="9" />
             <br />
             <label>
                 <input type="checkbox" id="randomLengthMode"> Random Length Mode
@@ -97,20 +139,19 @@
     </div>
 
     <script>
-        let correctWord = ''; // The word to guess
+        let correctWord = ''; 
         let currentRow = 0;
         let maxAttempts = 6;
         let wordLength = 0;
+        const delayBetweenFlips = 500;
 
-        // Fetch random words and filter by length
         async function fetchRandomWord(wordLength) {
             try {
                 let foundWord = false;
                 while (!foundWord) {
                     const response = await fetch('https://random-word-api.vercel.app/api?words=10');
                     const data = await response.json();
-                    
-                    // Check if any word meets the length criteria
+
                     const matchingWord = data.find(word => word.length === wordLength);
                     if (matchingWord) {
                         correctWord = matchingWord.toLowerCase();
@@ -118,16 +159,15 @@
                     }
                 }
 
-                console.log('Correct Word:', correctWord); // Log correct word to the console
-                maxAttempts = correctWord.length; // Set max attempts to the length of the word
-                createBoard(correctWord.length); // Create the board based on word length
+                maxAttempts = correctWord.length;
+                createBoard(correctWord.length);
                 document.getElementById('guessInput').setAttribute('maxlength', correctWord.length);
                 document.getElementById('guessInput').setAttribute('placeholder', `Enter a ${correctWord.length}-letter word`);
-                currentRow = 0; // Reset current row for new game
-                document.getElementById('message').innerText = ''; // Clear any messages
-                document.getElementById('guessInput').value = ''; // Clear the input field
+                currentRow = 0;
+                document.getElementById('message').innerText = '';
+                document.getElementById('guessInput').value = '';
 
-                showGuessingInputs(); // Show inputs for guessing
+                showGuessingInputs();
             } catch (error) {
                 document.getElementById('message').innerText = 'Failed to fetch a word. Please try again.';
                 console.error('Error fetching word:', error);
@@ -136,21 +176,21 @@
 
         function createBoard(wordLength) {
             const board = document.getElementById('board');
-            board.innerHTML = ''; // Clear previous board if any
-            board.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`; // Set grid columns based on word length
+            board.innerHTML = '';
+            board.style.gridTemplateColumns = `repeat(${wordLength}, 40px)`;
             for (let i = 0; i < maxAttempts * wordLength; i++) {
                 const tile = document.createElement('div');
                 tile.classList.add('tile');
                 tile.setAttribute('id', `tile-${i}`);
                 board.appendChild(tile);
             }
-            board.style.opacity = '1'; // Fade-in animation for board
+            board.style.opacity = '1';
         }
 
-        function makeGuess() {
+        async function makeGuess() {
             const guessInput = document.getElementById('guessInput');
             const currentGuess = guessInput.value.toLowerCase();
-            
+
             if (currentGuess.length !== correctWord.length) {
                 document.getElementById('message').innerText = `Please enter a ${correctWord.length}-letter word.`;
                 return;
@@ -161,45 +201,59 @@
             }
 
             const startIndex = currentRow * correctWord.length;
+
             for (let i = 0; i < correctWord.length; i++) {
                 const tile = document.getElementById(`tile-${startIndex + i}`);
                 tile.innerText = currentGuess[i];
-
-                if (currentGuess[i] === correctWord[i]) {
-                    tile.classList.add('correct');
-                } else if (correctWord.includes(currentGuess[i])) {
-                    tile.classList.add('present');
-                } else {
-                    tile.classList.add('wrong');
-                }
-                tile.style.transform = 'scale(1.1)'; // Animation for tiles
                 setTimeout(() => {
-                    tile.style.transform = 'scale(1)'; // Back to normal
-                }, 300);
+                    tile.classList.add('flip');
+                    setTimeout(() => {
+                        tile.classList.remove('flip');
+                        tile.classList.add(
+                            currentGuess[i] === correctWord[i] ? 'correct' :
+                            correctWord.includes(currentGuess[i]) ? 'present' : 'wrong'
+                        );
+                    }, 300);
+                }, i * delayBetweenFlips);
             }
 
-            if (currentGuess === correctWord) {
-                document.getElementById('message').innerText = 'Congratulations! You guessed the word!';
-                endGame();
-                return;
-            }
-
-            currentRow++;
-            guessInput.value = '';
-
-            if (currentRow >= maxAttempts) {
-                document.getElementById('message').innerText = `Game over! The word was "${correctWord}".`;
-                endGame();
-            }
+            setTimeout(() => {
+                if (currentGuess === correctWord) {
+                    document.getElementById('message').innerText = 'Congratulations! You guessed the word!';
+                    endGame();
+                } else if (++currentRow >= maxAttempts) {
+                    document.getElementById('message').innerText = `Game over! The word was "${correctWord}".`;
+                    endGame();
+                } else {
+                    guessInput.value = '';
+                }
+            }, correctWord.length * delayBetweenFlips + 500);
         }
 
         function endGame() {
-            // Show the word length input and new word button again after the game
             document.getElementById('wordLengthInput').classList.remove('hidden');
             document.getElementById('newWordButton').classList.remove('hidden');
-            // Hide the guess input and submit button when the game ends
             document.getElementById('guessInput').classList.add('hidden');
             document.getElementById('submitGuessButton').classList.add('hidden');
+            document.getElementById('randomLengthMode').parentElement.classList.remove('hidden'); // Show random length checkbox
+        }
+
+        function startGame() {
+            document.getElementById('message').innerText = '';
+            document.getElementById('guessInput').value = '';
+            currentRow = 0;
+
+            if (document.getElementById('randomLengthMode').checked) {
+                const randomLength = Math.floor(Math.random() * (9 - 5 + 1)) + 5;
+                fetchRandomWord(randomLength);
+            } else {
+                wordLength = parseInt(document.getElementById('wordLengthInput').value);
+                if (wordLength < 5 || wordLength > 9) {
+                    document.getElementById('message').innerText = 'Please enter a length between 5 and 9.';
+                    return;
+                }
+                fetchRandomWord(wordLength);
+            }
         }
 
         function showGuessingInputs() {
@@ -207,24 +261,7 @@
             document.getElementById('newWordButton').classList.add('hidden');
             document.getElementById('guessInput').classList.remove('hidden');
             document.getElementById('submitGuessButton').classList.remove('hidden');
-        }
-
-        function startGame() {
-            const randomLengthMode = document.getElementById('randomLengthMode').checked;
-            const wordLengthInput = document.getElementById('wordLengthInput');
-            
-            if (randomLengthMode) {
-                wordLength = Math.floor(Math.random() * 5) + 5; // Random length between 5 and 10
-            } else {
-                wordLength = parseInt(wordLengthInput.value);
-            }
-
-            if (isNaN(wordLength) || wordLength < 1) {
-                document.getElementById('message').innerText = 'Please enter a valid word length.';
-                return;
-            }
-
-            fetchRandomWord(wordLength); // Fetch the word
+            document.getElementById('randomLengthMode').parentElement.classList.add('hidden'); // Hide random length checkbox
         }
     </script>
 </body>
