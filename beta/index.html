@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordaura</title>
+    <link rel="icon" href="logo.png" />
+    <style>
+        /* Existing styles here */
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <img src="logo.png" alt="Wordaura Logo" class="logo" id="gameLogo"/>
+        <h1 class="wordaura-title">Wordaura</h1>
+
+        <div id="board" class="board"></div>
+
+        <input type="text" id="guessInput" placeholder="Enter your guess" class="hidden" />
+        <br />
+        <button id="submitGuessButton" onclick="makeGuess()" class="hidden">Submit Guess</button>
+
+        <div class="bottom-options">
+            <input type="number" id="wordLengthInput" placeholder="Enter word length" min="3" max="9" />
+            <br />
+            <input type="text" id="customWordInput" placeholder="Enter a custom word (optional)" style="text-transform: uppercase;">
+            <br />
+            <label>
+                <input type="checkbox" id="randomLengthMode"> Random Length Mode
+            </label>
+            <br />
+            <button id="newWordButton" onclick="startGame()">Start New Game</button>
+        </div>
+
+        <h3 id="message"></h3>
+    </div>
+
+    <script>
+        let correctWord = ''; 
+        let currentRow = 0;
+        let maxAttempts = 6;
+        let wordLength = 0;
+        const delayBetweenFlips = 500;
+
+        function fetchRandomWord(wordLength) {
+            // Fetches a random word of the specified length
+            // (unchanged function)
+        }
+
+        function createBoard(wordLength) {
+            // Creates the game board
+            // (unchanged function)
+        }
+
+        function makeGuess() {
+            // Handles guessing logic
+            // (unchanged function)
+        }
+
+        function endGame() {
+            // Ends the game and shows relevant controls
+            // (unchanged function)
+        }
+
+        function startGame() {
+            document.getElementById("gameLogo").classList.add("hidden");
+            document.getElementById('message').innerText = '';
+            document.getElementById('guessInput').value = '';
+            currentRow = 0;
+
+            const customWord = document.getElementById('customWordInput').value.toUpperCase().trim();
+
+            if (customWord && customWord.length >= 3 && customWord.length <= 9) {
+                correctWord = customWord.toLowerCase();
+                wordLength = customWord.length;
+                maxAttempts = wordLength;
+                createBoard(wordLength);
+                document.getElementById('guessInput').setAttribute('maxlength', wordLength);
+                document.getElementById('guessInput').setAttribute('placeholder', `Enter a ${wordLength}-letter word`);
+                showGuessingInputs();
+            } else if (document.getElementById('randomLengthMode').checked) {
+                const randomLength = Math.floor(Math.random() * (9 - 3 + 1)) + 3;
+                fetchRandomWord(randomLength);
+            } else {
+                wordLength = parseInt(document.getElementById('wordLengthInput').value);
+                if (wordLength < 3 || wordLength > 9) {
+                    document.getElementById('message').innerText = 'Please enter a length between 3 and 9.';
+                    return;
+                }
+                fetchRandomWord(wordLength);
+            }
+        }
+
+        function showGuessingInputs() {
+            // Shows the input fields for making guesses
+            document.getElementById('wordLengthInput').classList.add('hidden');
+            document.getElementById('newWordButton').classList.add('hidden');
+            document.getElementById('customWordInput').classList.add('hidden');
+            document.getElementById('guessInput').classList.remove('hidden');
+            document.getElementById('submitGuessButton').classList.remove('hidden');
+            document.getElementById('randomLengthMode').parentElement.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
