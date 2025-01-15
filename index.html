@@ -147,6 +147,7 @@
         let maxAttempts = 6;
         let wordLength = 0;
         const delayBetweenFlips = 500;
+        const socket = new WebSocket('wss://your-service-name.onrender.com');
 
         async function fetchRandomWord(wordLength) {
             try {
